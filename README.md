@@ -1,3 +1,10 @@
+This software has a PlattformIO counterpart which is a ESP32 S3 based round fron panel display. 
+Here is a link to that project: https://github.com/thk4711/pc-status-display
+
+ ![](https://github.com/thk4711/pc-status-display/doc/images/pc-display.png)
+
+It collects data and sends it over a serial interface to the ESP32 S3 board.
+
 # Architecture Overview
 
 The application is split into two components:
