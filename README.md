@@ -158,6 +158,10 @@ python build_executables.py
 3. Verify hardware monitoring permissions
 4. Test with original monolithic version for comparison
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## Technical Details
 
 ### Inter-Process Communication
