@@ -85,6 +85,36 @@ The client does automatic ESP32 device detection:
    - ☐ Create desktop icon (optional)
 
 ## For Developers (Building from Source)
+
+### Build Prerequisites
+
+Before building from source, ensure you have:
+
+#### Required Software
+1. **Python 3.7+** - [Download from python.org](https://www.python.org/downloads/)
+2. **Inno Setup** - [Download from jrsoftware.org](https://jrsoftware.org/isinfo.php)
+   - Required for creating the Windows installer package
+   - Used by `build_complete_installer.bat` to compile `service_installer.iss`
+
+#### Required Python Modules
+The build script will attempt to install PyInstaller automatically, but you may need to install other dependencies:
+
+```bash
+pip install pywin32 pyserial pystray Pillow psutil pycaw pythonnet comtypes
+```
+
+**Key modules:**
+- `pywin32` - Windows service framework and named pipes
+- `pyserial` - Serial communication with ESP32
+- `pystray` - System tray interface  
+- `Pillow` - Image processing for tray icons
+- `psutil` - System monitoring
+- `pycaw` - Audio volume control
+- `pythonnet` - .NET integration for LibreHardwareMonitor
+- `comtypes` - COM interface support
+
+### Building the Installer
+
 If you're building from source, you'll need to generate the installer first:
 1. Run `build_complete_installer.bat` to create the installer
 2. The installer will be generated in `installer_output/TraySerialMonitor_Standalone_Setup.exe`
