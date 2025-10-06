@@ -1,4 +1,4 @@
-This software has a PlattformIO counterpart which is a ESP32 S3 based round fron panel display. 
+This software has a PlattformIO counterpart which is a ESP32 S3 based round front panel display. 
 Here is a link to that project: https://github.com/thk4711/pc-status-display
 
  ![](https://github.com/thk4711/pc-status-display/raw/main/doc/images/pc-display.png)
@@ -187,3 +187,115 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - `pyserial`: Serial communication
 - `pystray`: System tray interface
 - `LibreHardwareMonitorLib`: Hardware monitoring
+
+## Serial Communication Protocol
+
+The Tray Serial Monitor Client communicates with the ESP32 S3 board via USB serial connection, sending real-time hardware monitoring data in JSON format.
+
+### Communication Parameters
+- **Baud Rate**: 115200
+- **Data Format**: JSON + newline terminator (`\n`)
+- **Transmission Interval**: Every 1 second
+- **Connection Type**: USB Serial (COM port)
+
+### JSON Data Structure
+
+The application sends hardware monitoring data as JSON objects with the following structure:
+
+```json
+{
+  "time": "14:30",
+  "cpu_load": 45,
+  "volume": 75,
+  "cpu_temp": 62
+}
+```
+
+#### Field Specifications
+
+| Field | Type | Description | Range/Format | Default |
+|-------|------|-------------|--------------|---------|
+| `time` | String | Current system time | "HH:MM" (24-hour format) | Current time |
+| `cpu_load` | Integer | CPU usage percentage | 0-100 | 0 |
+| `volume` | Integer | System audio volume | 0-100 | 0 |
+| `cpu_temp` | Integer/Float | CPU temperature | Celsius | 0 |
+
+#### Example Payloads
+
+**Normal Operation:**
+```json
+{"time": "15:42", "cpu_load": 23, "volume": 80, "cpu_temp": 45}
+```
+
+**High Load Scenario:**
+```json
+{"time": "09:15", "cpu_load": 89, "volume": 60, "cpu_temp": 78}
+```
+
+**Service Disconnected (Fallback Values):**
+```json
+{"time": "12:00", "cpu_load": 0, "volume": 0, "cpu_temp": 0}
+```
+
+### ESP32 Detection Mechanism
+
+The client features automatic ESP32 device detection and connection management:
+
+#### Auto-Detection Process
+1. **Port Scanning**: Scans available COM ports every 10 seconds
+2. **Device Identification**: Uses `ESP32PortDetector` class to identify ESP32 boards
+3. **Connection Testing**: Validates serial connection before data transmission
+4. **Automatic Switching**: Switches to newly detected ESP32 devices automatically
+
+#### Connection Management
+- **Initial Connection**: Scans for ESP32 devices on startup
+- **Reconnection**: Automatically reconnects if serial communication fails
+- **Port Monitoring**: Continuously monitors for new ESP32 devices
+- **Error Recovery**: Handles serial errors gracefully with automatic retry
+
+#### Detection Logic Flow
+```
+1. Scan available COM ports
+2. Filter for ESP32-compatible devices
+3. Test connection with selected port
+4. Establish serial communication at 115200 baud
+5. Begin data transmission (1-second intervals)
+6. Monitor connection health
+7. On error: Close connection, return to step 1
+```
+
+### Communication Flow
+
+1. **Service Connection**: Client connects to hardware monitoring service via named pipe
+2. **Data Collection**: Retrieves hardware metrics (CPU load, temperature, volume)
+3. **JSON Formatting**: Formats data into JSON structure with current time
+4. **Serial Transmission**: Sends JSON + newline to ESP32 via serial port
+5. **Error Handling**: Monitors for serial errors and reconnects as needed
+
+### Serial Communication Troubleshooting
+
+#### Common Issues
+
+**ESP32 Not Detected:**
+- Verify ESP32 is connected via USB
+- Check Windows Device Manager for COM port
+- Ensure ESP32 drivers are installed
+- Try different USB cable/port
+
+**Connection Drops:**
+- Check USB cable quality
+- Verify stable power supply to ESP32
+- Monitor Windows Event Viewer for USB errors
+- Restart the client application
+
+**No Data Transmission:**
+- Verify hardware monitoring service is running
+- Check named pipe connection status
+- Restart both service and client
+- Review application logs for errors
+
+**Incorrect Data Values:**
+- Verify service has proper hardware access
+- Check LibreHardwareMonitorLib permissions
+- Ensure service runs with SYSTEM privileges
+- Test hardware monitoring independently
